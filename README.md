@@ -6,7 +6,23 @@
 # buka console lalu clone repository terlebih dahulu
 $ git clone git@github.com:angganu/laravel-vue.git
 ```
-## Buat Database dan lakukan instalasi melalui console
+
+## Lakukan konfigurasi env dan buat database
+
+* copy file `.env.example` menjadi `.env`
+* buat database di mysql dengan nama `test_angganu`
+* ubah konfigurasi file `.env` sebagai berikut 
+``` bash
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=test_angganu
+DB_USERNAME=root
+DB_PASSWORD=
+```
+* untuk konfigurasi database bisa disesuaikan kembali dengan yang diinginkan.
+
+## Lakukan instalasi melalui console
 
 ``` bash
 # pindah ke directory project laravel
