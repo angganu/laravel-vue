@@ -16,6 +16,7 @@ class CreateInventoryTable extends Migration
         Schema::create('inventory', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('id_employee')->index('FK_employee_id');
+            $table->string('kode_transaksi', 25);
             $table->datetime('tgl_request')->nullable();
             $table->timestamps();
             $table->softDeletes();

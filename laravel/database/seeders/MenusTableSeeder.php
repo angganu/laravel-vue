@@ -135,7 +135,7 @@ class MenusTableSeeder extends Seeder
         ]);
         $this->menuId = DB::getPdo()->lastInsertId();  //set menuId
         /* guest menu */
-        $this->insertLink('user,admin', 'Dashboard', '/', 'cil-speedometer');
+        $this->insertLink('user,admin', 'Dashboard', '/dashboard', 'cil-speedometer');
         $this->insertLink('guest', 'Login', '/login', 'cil-account-logout');
         $this->insertLink('guest', 'Register', '/register', 'cil-account-logout');
         $this->beginDropdown('admin', 'Settings', '/settings', 'cil-puzzle');

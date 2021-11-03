@@ -17,7 +17,7 @@ class BarangSeeder extends Seeder
     {
         for($i = 1; $i <= 50; $i++){
             $num = str_pad($i, 2, '0', STR_PAD_LEFT);
-            $ran = str_pad(rand(0,9999), 4, '0', STR_PAD_LEFT);
+            $ran = str_pad(rand(1,9999), 4, '0', STR_PAD_LEFT);
             DB::table('barang')->insert([
                 'id_lokasi' => rand(1,25),
                 'id_satuan' => rand(1,10),

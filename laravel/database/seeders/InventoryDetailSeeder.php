@@ -17,8 +17,8 @@ class InventoryDetailSeeder extends Seeder
     {
         for($i = 1; $i <= 25; $i++){
             $num = str_pad($i, 3, '0', STR_PAD_LEFT);
-            $dep = str_pad(rand(0,999), 3, '0', STR_PAD_LEFT);
-            $ran = str_pad(rand(0,99999), 5, '0', STR_PAD_LEFT);
+            $dep = str_pad(rand(1,999), 3, '0', STR_PAD_LEFT);
+            $ran = str_pad(rand(1,99999), 5, '0', STR_PAD_LEFT);
             DB::table('inventory_detail')->insert([
                 'id_inventory' => $i,
                 'id_barang' => rand(1,50),

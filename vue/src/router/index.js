@@ -104,6 +104,13 @@ const DeleteMenuElement = () => import('@/views/menuElements/DeleteMenuElement')
 
 const Media = () => import('@/views/media/Media')
 
+const MenuEmployee = () => import('@/views/smm/Employee')
+const MenuBarang = () => import('@/views/smm/Barang')
+const MenuSatuan = () => import('@/views/smm/Satuan')
+const MenuLokasi = () => import('@/views/smm/Lokasi')
+const MenuInventory = () => import('@/views/smm/Inventory')
+const DetailInventory = () => import('@/views/smm/Inventory_detail')
+const EditInventory = () => import('@/views/smm/Inventory_edit')
 
 Vue.use(Router)
 
@@ -184,7 +191,10 @@ function configRoutes () {
         {
           path: 'dashboard',
           name: 'Dashboard',
-          component: Dashboard
+          component: Dashboard,
+          meta:{
+            requiresUser: true
+          }
         },
         {
           path: 'colors',
@@ -816,6 +826,73 @@ function configRoutes () {
               path: 'modals',
               name: 'Modals',
               component: Modals,
+              meta:{
+                requiresUser: true
+              }
+            }
+          ]
+        },
+        
+        {
+          path: 'employee',
+          name: 'Employee',
+          component: MenuEmployee,
+          meta:{
+            requiresUser: true
+          }
+        },
+        {
+          path: 'satuan',
+          name: 'Satuan',
+          component: MenuSatuan,
+          meta:{
+            requiresUser: true
+          }
+        },
+        {
+          path: 'lokasi',
+          name: 'Lokasi',
+          component: MenuLokasi,
+          meta:{
+            requiresUser: true
+          }
+        },
+        {
+          path: 'barang',
+          name: 'Barang',
+          component: MenuBarang,
+          meta:{
+            requiresUser: true
+          }
+        },
+        {
+          path: 'inventory',
+          meta: { label: 'Inventory'},
+          component: {
+            render (c) { return c('router-view') }
+          },
+          children: [
+            {
+              path: '',
+              component: MenuInventory,
+              meta:{
+                requiresUser: true
+              }
+            },
+            {
+              path: ':id',
+              meta: { label: 'Inventory Details'},
+              name: 'Inventory Detail',
+              component: DetailInventory,
+              meta:{
+                requiresUser: true
+              }
+            },
+            {
+              path: ':id/edit',
+              meta: { label: 'Edit Inventory' },
+              name: 'Edit Inventory',
+              component: EditInventory,
               meta:{
                 requiresUser: true
               }

@@ -67,7 +67,9 @@ $ npm run serve
 # frontend vue akan berjalan pada url http://localhost:8080
 
 # login menggunakan akun berikut
-user1@user.com | password
+mail: user1@user.com `-hingga-` user10@user.com
+pass: password
+# akun user digunakan untuk melihat fitur test smm
 ```
 
 ## CATATAN

@@ -17,7 +17,7 @@ class InventoryLokasiSeeder extends Seeder
     {
         for($i = 1; $i <= 25; $i++){
             $num = str_pad($i, 2, '0', STR_PAD_LEFT);
-            $ran = str_pad(rand(0,99), 2, '0', STR_PAD_LEFT);
+            $ran = str_pad(rand(1,99), 2, '0', STR_PAD_LEFT);
             DB::table('inventory_lokasi')->insert([
                 'nama_lokasi' => 'L'.$num.'-R'.$ran.'A',
             ]);
