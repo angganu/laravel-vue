@@ -65,4 +65,13 @@ $ cd ../vue
 # jalankan local server
 $ npm run serve
 # frontend vue akan berjalan pada url http://localhost:8080
+
+# login menggunakan akun berikut
+user1@user.com | password
 ```
+
+## CATATAN
+
+* source code ini menggunakan template dari `coreui`
+* php yang digunakan menggunakan versi 7.3
+* database menggunakan mysql
