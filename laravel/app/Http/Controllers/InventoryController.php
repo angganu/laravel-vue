@@ -31,10 +31,30 @@ class InventoryController extends Controller
         'employee.nik', 'employee.nama', 'employee.departemen')
         ->leftJoin('employee','inventory.id_employee','employee.id')
         ->whereNull('inventory.deleted_at')
+        ->orderBy('id','desc')
         ->get();
         return response()->json( compact('result', 'you') );
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'tanggal'    => 'required',
+            'id_employee' => 'required',
+        ]);
+        $data = new Inventory();
+        $data->id_employee = $request->input('id_employee');
+        $data->tgl_request = date('Y-m-d H:i:s', strtotime($request->input('tanggal')));
+        $data->kode_transaksi = 'INV.'.$data->id_employee.'-'.str_pad(rand(1,99999), 5, '0', STR_PAD_LEFT);
+        $data->save();
+        return response()->json( ['status' => 'success'] );
+    }
 
     /**
      * Remove the specified resource from storage.

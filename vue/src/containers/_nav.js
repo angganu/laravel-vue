@@ -266,6 +266,44 @@ export default [
         icon: { name: 'cil-layers', class: 'text-white' },
         _class: 'bg-danger text-white',
         target: '_blank'
+      },
+
+      
+      {
+        _name: 'CSidebarNavDropdown',
+        name: 'Master Barang',
+        route: '/',
+        icon: 'cil-cursor',
+        items: [
+          {
+            name: 'Barang',
+            to: '/barang',
+            icon: 'cil-cursor'
+          },
+          {
+            name: 'Satuan',
+            to: '/satuan',
+            icon: 'cil-cursor'
+          }
+        ]
+      },
+      {
+        _name: 'CSidebarNavDropdown',
+        name: 'Inventory',
+        route: '/',
+        icon: 'cil-cursor',
+        items: [
+          {
+            name: 'Inventory Request',
+            to: '/inventory',
+            icon: 'cil-cursor'
+          },
+          {
+            name: 'Lokasi Inventory',
+            to: '/lokasi',
+            icon: 'cil-cursor'
+          }
+        ]
       }
     ]
   }

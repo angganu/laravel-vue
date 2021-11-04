@@ -76,4 +76,6 @@ pass: password
 
 * source code ini menggunakan template dari `coreui`
 * php yang digunakan menggunakan versi 7.3
+* vue yang digunakan versi 2
+* laravel yang digunakan versi 8
 * database menggunakan mysql

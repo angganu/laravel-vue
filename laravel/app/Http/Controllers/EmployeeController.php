@@ -24,10 +24,12 @@ class EmployeeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $you = auth()->user()->id;
+        $search = ($request->search)? $request->search:'';
         $result = Employee::select('employee.id', 'employee.nik', 'employee.nama', 'employee.departemen')
+        ->where('nik', 'like', "%$search%")
         ->whereNull('deleted_at')
         ->get();
         return response()->json( compact('result', 'you') );
