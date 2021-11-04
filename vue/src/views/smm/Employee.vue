@@ -69,7 +69,10 @@ export default {
       .then(function (response) {
         self.items = response.data.result;
         self.you = response.data.you;
-      });
+      }).catch(function (error) {
+        console.log(error);
+        self.$router.push({ path: '/login' });
+    });
     }
   },
   mounted: function(){

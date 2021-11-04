@@ -8,7 +8,7 @@
               Inventory
             </CCardHeader>
             <CCardBody>
-              <CButton color="primary" class="mb-2" @click="modalCreate = true"
+              <CButton color="primary" class="mb-2" @click="modalCreateShow"
                 >Buat Permintaan Baru</CButton
               >
               <CButton color="light" class="mb-2 float-right" @click="reload()"
@@ -54,21 +54,21 @@
       :no-close-on-backdrop="true"
       :centered="true"
       title="Tambah Permintaan Barang"
-      size="lg"
+      size="xl"
       color="dark"
     >
       <CForm>
         <div class="row">
           <div class="col-md-12">
-            <div class="row mb-3">
-              <div class="col-md-6">
+            <div class="row">
+              <div class="col-md-3">
                 <label>Tanggal Permintaan</label>
                 <date-picker
                   v-model="formModel.tanggal"
                   :config="options"
                 ></date-picker>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-3">
                 <label>NIK Peminta</label>
                 <v-select
                   label="nik"
@@ -78,7 +78,7 @@
                   @input="changeNIK"
                 >
                   <template slot="no-options">
-                    Cari NIK Pegawai
+                    Silahkan Ketik NIK Pegawai
                   </template>
                   <template slot="option" slot-scope="selectOptions">
                     <div class="d-center">
@@ -86,17 +86,13 @@
                     </div>
                   </template>
                   <template slot="selected-option" slot-scope="selectOptions">
-                    <div class="selected d-center" >
+                    <div class="selected d-center">
                       {{ formModel.nik }}
                     </div>
                   </template>
                 </v-select>
               </div>
-            </div>
-          </div>
-          <div class="col-md-12">
-            <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-3">
                 <CInput
                   label="Nama Peminta"
                   type="text"
@@ -104,7 +100,7 @@
                   readonly
                 ></CInput>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-3">
                 <CInput
                   label="Departemen"
                   type="text"
@@ -113,6 +109,95 @@
                 ></CInput>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col-md-12">
+            <CButton
+              @click="addBarang()"
+              color="info"
+              size="sm"
+              class="pull-right mb-1"
+              ><i class="fa fa-plus"></i> Tambah Item</CButton
+            >
+            <h5>Daftar Permintaan Barang</h5>
+            <table class="table mb-0">
+              <thead>
+                <tr>
+                  <th width="2%">#</th>
+                  <th width="27%">Barang</th>
+                  <th width="13%">Lokasi</th>
+                  <th width="10%">Tersedia</th>
+                  <th width="10%">Kuantiti</th>
+                  <th width="10%">Satuan</th>
+                  <th width="15%">Keterangan</th>
+                  <th width="11%">Status</th>
+                  <th width="2%">#</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(barang, index) in formModel.list_barang">
+                  <td>{{ index + 1 }}</td>
+                  <td>
+                    <v-select
+                      label="kode_barang"
+                      :filterable="false"
+                      :options="selectBarang"
+                      @open="selectingRow(index)"
+                      @search="onSearchBarang"
+                      @input="changeBarang"
+                    >
+                      <template slot="no-options">
+                        Silahkan Ketik Kode Barang
+                      </template>
+                      <template slot="option" slot-scope="selectBarang">
+                        <div class="d-center">
+                          {{ selectBarang.kode_barang +' - '+ selectBarang.nama_barang }}
+                        </div>
+                      </template>
+                      <template
+                        slot="selected-option"
+                        slot-scope="selectBarang"
+                      >
+                        <div class="selected d-center">
+                          {{ formModel.list_barang[index].kode_barang +' - '+  formModel.list_barang[index].nama_barang}}
+                        </div>
+                      </template>
+                    </v-select>
+                  </td>
+                  <td>
+                    <input
+                      class="form-control"
+                      v-model="formModel.list_barang[index].lokasi"
+                      readonly
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="form-control"
+                      v-model="formModel.list_barang[index].stock"
+                      readonly
+                    />
+                  </td>
+                  <td>
+                    <input class="form-control" v-on:keyup="cekQty(index, $event.target.value)" v-model="formModel.list_barang[index].kuantiti" />
+                  </td>
+                  <td>
+                    <input
+                      class="form-control"
+                      v-model="formModel.list_barang[index].satuan"
+                      readonly
+                    />
+                  </td>
+                  <td>
+                    <input class="form-control" v-model="formModel.list_barang[index].keterangan" />
+                  </td>
+                  <td><CBadge color="success">{{statusText}}</CBadge></td>
+                  <td><CButton @click="removeRow(index)" size="sm" color="danger"><i class="fa fa-trash"></i></CButton></td>
+                </tr>
+              </tbody>
+            </table>
+            {{ alertEmpty }}
           </div>
         </div>
       </CForm>
@@ -142,6 +227,7 @@ export default {
     return {
       items: [],
       selectOptions: [],
+      selectBarang: [],
       fields: ["id", "tanggal", "kode", "nik", "nama", "departemen", "action"],
       currentPage: 1,
       perPage: 10,
@@ -165,7 +251,13 @@ export default {
         nik: "",
         nama: "",
         departemen: "",
+        list_barang: [],
       },
+      rowIndex:0,
+      alertEmpty:'',
+      selectedRow:'',
+      statusBadge: 'secondary',
+      statusText: '-',
     };
   },
   components: {
@@ -184,6 +276,12 @@ export default {
         this.searchSelect(loading, search, this);
       }
     },
+    onSearchBarang(search, loading) {
+      if (search.length) {
+        loading(true);
+        this.searchBarang(loading, search, this);
+      }
+    },
     searchSelect: _.debounce((loading, search, vm) => {
       fetch(
         vm.$apiAdress +
@@ -196,17 +294,91 @@ export default {
         loading(false);
       });
     }, 350),
+    searchBarang: _.debounce((loading, search, vm) => {
+      fetch(
+        vm.$apiAdress +
+          "/api/barang?token=" +
+          localStorage.getItem("api_token") +
+          "&search=" +
+          `${escape(search)}`
+      ).then((res) => {
+        res.json().then((json) => (vm.selectBarang = json.result));
+        loading(false);
+      });
+    }, 350),
     changeNIK(val) {
       this.formModel.id_employee = val.id;
       this.formModel.nama = val.nama;
       this.formModel.departemen = val.departemen;
       this.formModel.nik = val.nik;
     },
+    changeBarang(val) {
+      this.formModel.list_barang[this.selectedRow].id = val.id;
+      this.formModel.list_barang[this.selectedRow].kode_barang = val.kode_barang;
+      this.formModel.list_barang[this.selectedRow].nama_barang = val.nama_barang;
+      this.formModel.list_barang[this.selectedRow].lokasi = val.lokasi;
+      this.formModel.list_barang[this.selectedRow].stock = val.stock;
+      this.formModel.list_barang[this.selectedRow].satuan = val.satuan;
+      this.alertEmpty = '';
+    },
     reload() {
       this.getData();
     },
-    createNew() {
-      alert("A");
+    modalCreateShow() {
+      this.formModel = {
+        tanggal: new Date(),
+        id_employee: "",
+        nik: "",
+        nama: "",
+        departemen: "",
+        list_barang: [],
+      };
+      this.rowIndex=0;
+      this.alertEmpty='';
+      this.selectedRow='';
+      this.modalCreate = true;
+      this.addBarang();
+    },
+    addBarang() {
+      if(this.formModel.list_barang.length >0){
+        if(this.formModel.list_barang[this.rowIndex].id == ''){
+          this.alertEmpty = "* Silahkan isi atau hapus kolom yang kosong.";
+        } else {
+          this.pushRow();
+        }
+      } else {
+        this.pushRow();
+      }
+    },
+    selectingRow(idx){
+      this.selectedRow = idx;
+    },
+    pushRow(){
+      this.rowIndex = this.formModel.list_barang.push({
+        'id' : '',
+        'kode_barang' : '',
+        'nama_barang' : '',
+        'lokasi' : '',
+        'stock' : '',
+        'satuan' : '',
+        'kuantiti' : '',
+        'keterangan' : '',
+      }) -1;
+    },
+    removeRow(idx){
+      this.formModel.list_barang.splice(idx, 1);
+      this.rowIndex = this.rowIndex - 1;
+      this.alertEmpty = '';
+    },
+    cekQty(index,value) {
+      var stock = this.formModel.list_barang[index].stock;
+      if(stock < value){
+        this.statusBadge = 'danger';
+        this.statusText = "Tidak Sesuai";
+      } else {
+        this.statusBadge = 'success';
+        this.statusText = "Diterima";
+      }
     },
     store() {
       let self = this;
@@ -224,7 +396,11 @@ export default {
             nik: "",
             nama: "",
             departemen: "",
+            list_barang: [],
           };
+          self.rowIndex=0;
+          self.alertEmpty='';
+          self.selectedRow='';
           self.message = "Permintaan baru berhasil dibuat.";
           self.showAlert();
           self.getData();
@@ -293,6 +469,10 @@ export default {
         .then(function(response) {
           self.items = response.data.result;
           self.you = response.data.you;
+        })
+        .catch(function(error) {
+          console.log(error);
+          self.$router.push({ path: "/login" });
         });
     },
   },
