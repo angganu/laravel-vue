@@ -109,8 +109,6 @@ const MenuBarang = () => import('@/views/smm/Barang')
 const MenuSatuan = () => import('@/views/smm/Satuan')
 const MenuLokasi = () => import('@/views/smm/Lokasi')
 const MenuInventory = () => import('@/views/smm/Inventory')
-const DetailInventory = () => import('@/views/smm/Inventory_detail')
-const EditInventory = () => import('@/views/smm/Inventory_edit')
 
 Vue.use(Router)
 
@@ -875,24 +873,6 @@ function configRoutes () {
             {
               path: '',
               component: MenuInventory,
-              meta:{
-                requiresUser: true
-              }
-            },
-            {
-              path: ':id',
-              meta: { label: 'Inventory Details'},
-              name: 'Inventory Detail',
-              component: DetailInventory,
-              meta:{
-                requiresUser: true
-              }
-            },
-            {
-              path: ':id/edit',
-              meta: { label: 'Edit Inventory' },
-              name: 'Edit Inventory',
-              component: EditInventory,
               meta:{
                 requiresUser: true
               }

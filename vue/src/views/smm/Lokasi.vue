@@ -2,81 +2,88 @@
   <CRow>
     <CCol col="12" xl="12">
       <transition name="slide">
-      <CCard>
-        <CCardHeader>
+        <CCard>
+          <CCardHeader>
             Lokasi Inventory
-        </CCardHeader>
-        <CCardBody>
-          <CAlert
-            :show.sync="dismissCountDown"
-            color="primary"
-            fade
-          >
-            ({{dismissCountDown}}) {{ message }}
-          </CAlert>
-          <CDataTable
-            hover
-            striped
-            :items="items"
-            :fields="fields"
-            :items-per-page="10"
-            pagination
-          >
-        </CDataTable>
-        </CCardBody>
-      </CCard>
+          </CCardHeader>
+          <CCardBody>
+            <CAlert :show.sync="dismissCountDown" color="primary" fade>
+              ({{ dismissCountDown }}) {{ message }}
+            </CAlert>
+            <CDataTable
+              hover
+              striped
+              :items="items"
+              :fields="fields"
+              :items-per-page="10"
+              pagination
+            >
+              <template ##="{item,index}">
+                <td>
+                  {{ index + 1 }}
+                </td>
+              </template>
+            </CDataTable>
+          </CCardBody>
+        </CCard>
       </transition>
     </CCol>
   </CRow>
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 
 export default {
-  name: 'data',
+  name: "data",
   data: () => {
     return {
       items: [],
-      fields: ['id', 'nama'],
+      fields: ["#", "nama"],
       currentPage: 1,
       perPage: 10,
       totalRows: 0,
       you: null,
-      message: '',
+      message: "",
       showMessage: false,
       dismissSecs: 7,
       dismissCountDown: 0,
-      showDismissibleAlert: false
-    }
+      showDismissibleAlert: false,
+    };
   },
   paginationProps: {
-    align: 'center',
+    align: "center",
     doubleArrows: false,
-    previousButtonHtml: 'prev',
-    nextButtonHtml: 'next'
+    previousButtonHtml: "prev",
+    nextButtonHtml: "next",
   },
   methods: {
-    countDownChanged (dismissCountDown) {
-      this.dismissCountDown = dismissCountDown
+    countDownChanged(dismissCountDown) {
+      this.dismissCountDown = dismissCountDown;
     },
-    showAlert () {
-      this.dismissCountDown = this.dismissSecs
+    showAlert() {
+      this.dismissCountDown = this.dismissSecs;
     },
-    getData (){
+    getData() {
       let self = this;
-      axios.get(  this.$apiAdress + '/api/lokasi?token=' + localStorage.getItem("api_token"))
-      .then(function (response) {
-        self.items = response.data.result;
-        self.you = response.data.you;
-      }).catch(function (error) {
-        console.log(error);
-        self.$router.push({ path: '/login' });
-    });
-    }
+      axios
+        .get(
+          this.$apiAdress +
+            "/api/lokasi?token=" +
+            localStorage.getItem("api_token")
+        )
+        .then(function(response) {
+          self.items = response.data.result;
+          self.you = response.data.you;
+        })
+        .catch(function(error) {
+          console.log(error);
+          self.$router.push({ path: "/login" });
+        });
+    },
   },
-  mounted: function(){
+  mounted: function() {
     this.getData();
-  }
-}
+  },
+};
 </script>

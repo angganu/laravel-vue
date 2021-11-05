@@ -13,7 +13,7 @@
               >
               <CButton color="light" class="mb-2 float-right" @click="reload()"
                 ><CIcon :content="$options.freeSet.cilReload"
-              /></CButton>
+              /> Reload</CButton>
               <CAlert :show.sync="dismissCountDown" color="info" fade>
                 ({{ dismissCountDown }}) {{ message }}
               </CAlert>
@@ -25,6 +25,11 @@
                 :items-per-page="10"
                 pagination
               >
+                <template ##="{item,index}">
+                  <td>
+                    {{ index + 1 }}
+                  </td>
+                </template>
                 <template #action="{item}">
                   <td>
                     <CButton
@@ -33,13 +38,6 @@
                       class="mr-2"
                       @click="viewRow(item.id)"
                       >Lihat</CButton
-                    >
-                    <CButton
-                      color="success"
-                      size="sm"
-                      class="mr-2"
-                      @click="editRow(item.id)"
-                      >Edit</CButton
                     >
                     <CButton
                       color="danger"
@@ -57,6 +55,64 @@
     </CRow>
 
     <CModal
+      :show.sync="modalPreview"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      title="Detil Permintaan Barang"
+      size="lg"
+      color="dark"
+    >
+      <div class="row">
+        <div class="col-md-3">
+          <label>Tanggal Permintaan</label>
+          <input class="form-control disabled-input" v-model="detailView.tanggal" disabled />
+        </div>
+        <div class="col-md-3">
+          <label>NIK Peminta</label>
+          <input class="form-control disabled-input" v-model="detailView.nik" disabled />
+        </div>
+        <div class="col-md-3">
+          <label>Nama Peminta</label>
+          <input class="form-control disabled-input" v-model="detailView.nama" disabled />
+        </div>
+        <div class="col-md-3">
+          <label>Departemen</label>
+          <input class="form-control disabled-input" v-model="detailView.departemen" disabled />
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <h5>Daftar Permintaan Barang</h5>
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th width="5%">#</th>
+                <th width="35%">Barang</th>
+                <th width="15%">Lokasi</th>
+                <th width="15%">Kuantiti</th>
+                <th width="15%">Satuan</th>
+                <th width="15%">Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(barang, index) in detailView.list_barang">
+                <td>{{ index + 1 }}</td>
+                <td><input class="form-control disabled-input" v-model="barang.nama_Barang" disabled /></td>
+                <td><input class="form-control disabled-input" v-model="barang.nama_lokasi" disabled /></td>
+                <td><input class="form-control disabled-input" v-model="barang.kuantiti" disabled /></td>
+                <td><input class="form-control disabled-input" v-model="barang.nama_satuan" disabled /></td>
+                <td><input class="form-control disabled-input" v-model="barang.keterangan" disabled /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <template #footer>
+        <CButton color="primary">Ok</CButton>
+      </template>
+    </CModal>
+
+    <CModal
       :show.sync="modalCreate"
       :no-close-on-backdrop="true"
       :centered="true"
@@ -67,13 +123,9 @@
       <CForm>
         <div class="row">
           <div class="col-md-12">
-            <CAlert
-            color="danger"
-            closeButton
-            :show.sync="alertSubmit"
-          >
-            {{alertSubmitText}}
-          </CAlert>
+            <CAlert color="danger" closeButton :show.sync="alertSubmit">
+              {{ alertSubmitText }}
+            </CAlert>
             <div class="row">
               <div class="col-md-3">
                 <label>Tanggal Permintaan</label>
@@ -166,7 +218,11 @@
                       </template>
                       <template slot="option" slot-scope="selectBarang">
                         <div class="d-center">
-                          {{ selectBarang.kode_barang +' - '+ selectBarang.nama_barang }}
+                          {{
+                            selectBarang.kode_barang +
+                              " - " +
+                              selectBarang.nama_barang
+                          }}
                         </div>
                       </template>
                       <template
@@ -174,7 +230,11 @@
                         slot-scope="selectBarang"
                       >
                         <div class="selected d-center">
-                          {{ formModel.list_barang[index].kode_barang +' - '+  formModel.list_barang[index].nama_barang}}
+                          {{
+                            formModel.list_barang[index].kode_barang +
+                              " - " +
+                              formModel.list_barang[index].nama_barang
+                          }}
                         </div>
                       </template>
                     </v-select>
@@ -194,7 +254,12 @@
                     />
                   </td>
                   <td>
-                    <input class="form-control" type="number" v-on:keyup="cekQty(index, $event.target.value)" v-model="formModel.list_barang[index].kuantiti" />
+                    <input
+                      class="form-control"
+                      type="number"
+                      v-on:keyup="cekQty(index, $event.target.value)"
+                      v-model="formModel.list_barang[index].kuantiti"
+                    />
                   </td>
                   <td>
                     <input
@@ -204,10 +269,21 @@
                     />
                   </td>
                   <td>
-                    <input class="form-control" v-model="formModel.list_barang[index].keterangan" />
+                    <input
+                      class="form-control"
+                      v-model="formModel.list_barang[index].keterangan"
+                    />
                   </td>
-                  <td><CBadge color="success">{{formModel.list_barang[index].status}}</CBadge></td>
-                  <td><CButton @click="removeRow(index)" size="sm" color="danger"><i class="fa fa-trash"></i></CButton></td>
+                  <td>
+                    <CBadge color="success">{{
+                      formModel.list_barang[index].status
+                    }}</CBadge>
+                  </td>
+                  <td>
+                    <CButton @click="removeRow(index)" size="sm" color="danger"
+                      ><i class="fa fa-trash"></i
+                    ></CButton>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -242,12 +318,13 @@ export default {
       items: [],
       selectOptions: [],
       selectBarang: [],
-      fields: ["id", "tanggal", "kode", "nik", "nama", "departemen", "action"],
+      fields: ["#", "tanggal", "kode", "nik", "nama", "departemen", "action"],
       currentPage: 1,
       perPage: 10,
       totalRows: 0,
       you: null,
       message: "",
+      modalPreview: false,
       showMessage: false,
       dismissSecs: 7,
       dismissCountDown: 0,
@@ -259,6 +336,13 @@ export default {
         showClear: true,
         showClose: true,
       },
+      detailView: {
+        tanggal: "",
+        nik: "",
+        nama: "",
+        departemen: "",
+        list_barang: [],
+      },
       formModel: {
         tanggal: new Date(),
         id_employee: "",
@@ -267,11 +351,11 @@ export default {
         departemen: "",
         list_barang: [],
       },
-      rowIndex:0,
-      alertEmpty:'',
+      rowIndex: 0,
+      alertEmpty: "",
       alertSubmit: false,
-      alertSubmitText: '',
-      selectedRow:'',
+      alertSubmitText: "",
+      selectedRow: "",
     };
   },
   components: {
@@ -328,19 +412,22 @@ export default {
     },
     changeBarang(val) {
       this.formModel.list_barang[this.selectedRow].id = val.id;
-      this.formModel.list_barang[this.selectedRow].kode_barang = val.kode_barang;
-      this.formModel.list_barang[this.selectedRow].nama_barang = val.nama_barang;
+      this.formModel.list_barang[this.selectedRow].kode_barang =
+        val.kode_barang;
+      this.formModel.list_barang[this.selectedRow].nama_barang =
+        val.nama_barang;
       this.formModel.list_barang[this.selectedRow].lokasi = val.lokasi;
       this.formModel.list_barang[this.selectedRow].stock = val.stock;
       this.formModel.list_barang[this.selectedRow].satuan = val.satuan;
-      this.formModel.list_barang[this.selectedRow].status = '-';
-      this.alertEmpty = '';
+      this.formModel.list_barang[this.selectedRow].status =
+        val.stock > 0 ? "Tidak Sesuai" : "Kosong";
+      this.alertEmpty = "";
     },
     reload() {
       this.getData();
     },
     modalCreateShow() {
-      this.selectBarang= [];
+      this.selectBarang = [];
       this.formModel = {
         tanggal: new Date(),
         id_employee: "",
@@ -349,15 +436,15 @@ export default {
         departemen: "",
         list_barang: [],
       };
-      this.rowIndex=0;
-      this.alertEmpty='';
-      this.selectedRow='';
+      this.rowIndex = 0;
+      this.alertEmpty = "";
+      this.selectedRow = "";
       this.modalCreate = true;
       this.addBarang();
     },
     addBarang() {
-      if(this.formModel.list_barang.length >0){
-        if(this.formModel.list_barang[this.rowIndex].id == ''){
+      if (this.formModel.list_barang.length > 0) {
+        if (this.formModel.list_barang[this.rowIndex].id == "") {
           this.alertEmpty = "* Silahkan isi atau hapus kolom yang kosong.";
         } else {
           this.pushRow();
@@ -366,38 +453,47 @@ export default {
         this.pushRow();
       }
     },
-    selectingRow(idx){
+    selectingRow(idx) {
       this.selectedRow = idx;
     },
-    pushRow(){
-      this.rowIndex = this.formModel.list_barang.push({
-        'id' : '',
-        'kode_barang' : '',
-        'nama_barang' : '',
-        'lokasi' : '',
-        'stock' : '',
-        'satuan' : '',
-        'kuantiti' : '',
-        'keterangan' : '',
-        'status' : '-',
-      }) -1;
+    pushRow() {
+      this.rowIndex =
+        this.formModel.list_barang.push({
+          id: "",
+          kode_barang: "",
+          nama_barang: "",
+          lokasi: "",
+          stock: "",
+          satuan: "",
+          kuantiti: "",
+          keterangan: "",
+          status: "Tidak Sesuai",
+        }) - 1;
     },
-    viewRow(id){
-      console.log(id);
+    viewRow(id) {
+      this.modalPreview = true;
+      this.detailView = {
+        tanggal: "",
+        nik: "",
+        nama: "",
+        departemen: "",
+        list_barang: [],
+      };
+      this.getDetailInventory(id);
     },
-    removeRow(idx){
+    removeRow(idx) {
       this.formModel.list_barang.splice(idx, 1);
       this.rowIndex = this.rowIndex - 1;
-      this.alertEmpty = '';
+      this.alertEmpty = "";
     },
-    cekQty(index,value) {
+    cekQty(index, value) {
       console.log(index);
       console.log(this.formModel.list_barang);
       var stock = this.formModel.list_barang[index].stock;
-      if(stock < value){
+      if (stock < value || value == 0 || value == "") {
         this.formModel.list_barang[index].status = "Tidak Sesuai";
       } else {
-        this.formModel.list_barang[index].status = "Diterima";
+        this.formModel.list_barang[index].status = "Terpenuhi";
       }
     },
     store() {
@@ -418,36 +514,30 @@ export default {
             departemen: "",
             list_barang: [],
           };
-          self.rowIndex=0;
-          self.alertEmpty='';
-          self.selectedRow='';
+          self.rowIndex = 0;
+          self.alertEmpty = "";
+          self.selectedRow = "";
           self.message = "Permintaan baru berhasil dibuat.";
           self.showAlert();
           self.getData();
           self.modalCreate = false;
         })
         .catch(function(error) {
-          if(error.response.data.message == 'The given data was invalid.'){
-              self.alertSubmitText = '';
-              for (let key in error.response.data.errors) {
-                if (error.response.data.errors.hasOwnProperty(key)) {
-                  self.alertSubmitText += error.response.data.errors[key][0] + '  ';
-                }
+          if (error.response.data.message == "The given data was invalid.") {
+            self.alertSubmitText = "";
+            for (let key in error.response.data.errors) {
+              if (error.response.data.errors.hasOwnProperty(key)) {
+                self.alertSubmitText +=
+                  error.response.data.errors[key][0] + "  ";
               }
-              self.alertSubmit = true;
-            }else{
-              self.alertSubmit = true;
-              self.alertSubmitText = error.response.data.message;
-              // self.$router.push({ path: 'login' }); 
             }
+            self.alertSubmit = true;
+          } else {
+            self.alertSubmit = true;
+            self.alertSubmitText = error.response.data.message;
+            // self.$router.push({ path: 'login' });
+          }
         });
-    },
-    editRow(id) {
-      const editLink = this.editLink(id);
-      this.$router.push({ path: editLink });
-    },
-    editLink(id) {
-      return `inventory/${id.toString()}/edit`;
     },
     deleteRow(id) {
       let self = this;
@@ -494,6 +584,29 @@ export default {
         .catch(function(error) {
           console.log(error);
           self.$router.push({ path: "/login" });
+        });
+    },
+    getDetailInventory(id) {
+      let self = this;
+      axios
+        .get(
+          this.$apiAdress +
+            "/api/detail?id="+id+"&token=" +
+            localStorage.getItem("api_token")
+        )
+        .then(function(response) {
+          self.detailView = {
+            tanggal: response.data.result.tanggal,
+            nik: response.data.result.nik,
+            nama: response.data.result.nama,
+            departemen: response.data.result.departemen,
+            list_barang: response.data.detail,
+          };
+          console.log(self.detailView);
+        })
+        .catch(function(error) {
+          console.log(error);
+          // self.$router.push({ path: "/login" });
         });
     },
   },

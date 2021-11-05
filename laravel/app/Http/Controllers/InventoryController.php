@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+
 use App\Models\Inventory;
 use App\Models\InventoryDetail;
+use App\Models\Barang;
 
 class InventoryController extends Controller
 {
@@ -58,8 +60,11 @@ class InventoryController extends Controller
             if($ls['id'] == ''){
                 return response()->json( ['status' => 'failed', 'message' => 'Inputan barang tidak boleh ada yang kosong.'], 417 );
             }
+            if($ls['stock'] == '' || $ls['stock'] == 0){
+                return response()->json( ['status' => 'failed', 'message' => 'Stok ['.$ls['nama_barang'].'] kosong.'], 417 );
+            }
             if($ls['kuantiti'] == ''){
-                return response()->json( ['status' => 'failed', 'message' => 'kuantiti ['.$ls['nama_barang'].'] tidak boleh kosong.'], 417 );
+                return response()->json( ['status' => 'failed', 'message' => 'Kuantiti ['.$ls['nama_barang'].'] tidak boleh kosong.'], 417 );
             }
             if($ls['status'] == 'Tidak Sesuai'){
                 return response()->json( ['status' => 'failed', 'message' => 'Jumlan barang ['.$ls['nama_barang'].'] tidak sesuai, silahkan perbaiki.'], 417 );
@@ -79,13 +84,41 @@ class InventoryController extends Controller
                     $detail->kuantiti = $l['kuantiti'];
                     $detail->keterangan = $l['keterangan'];
                     $detail->status = $l['status'];
-                    $detail->save();
+                    if($detail->save()){
+                        // update stock
+                        $barang = Barang::find($l['id']);
+                        $barang->stock = ($barang->stock - $l['kuantiti']);
+                        $barang->save();
+                    }
                 }
             }
             return response()->json( ['status' => 'success'] );
         } else {
             return response()->json( ['status' => 'failed'] );
         }
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function detail(Request $request)
+    {
+        $id_inv = $request->id;
+        $result = Inventory::select('inventory.id','inventory.tgl_request as tanggal','inventory.kode_transaksi as kode',
+        'employee.nik', 'employee.nama', 'employee.departemen')
+        ->leftJoin('employee','inventory.id_employee','employee.id')
+        ->where('inventory.id', $id_inv)
+        ->first();
+        $detail = InventoryDetail::select('inventory_detail.id','inventory_detail.kuantiti','inventory_detail.keterangan',
+        'barang.nama_Barang', 'barang_satuan.nama_satuan', 'inventory_lokasi.nama_lokasi')
+        ->leftJoin('barang','inventory_detail.id_barang','barang.id')
+        ->leftJoin('barang_satuan','barang.id_satuan','barang_satuan.id')
+        ->leftJoin('inventory_lokasi','barang.id_lokasi','inventory_lokasi.id')
+        ->where('inventory_detail.id_inventory', $id_inv)
+        ->get();
+        return response()->json( compact('result', 'detail') );
     }
 
     /**

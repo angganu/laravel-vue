@@ -83,6 +83,7 @@ Route::group(['middleware' => 'api'], function ($router) {
         Route::resource('lokasi', 'LokasiController')->except( ['create', 'store'] );
         Route::resource('barang', 'BarangController')->except( ['create', 'store'] );
         Route::resource('inventory', 'InventoryController');
+        Route::get('/detail', 'InventoryController@detail');
 
     });
 });
