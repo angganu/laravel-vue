@@ -24,7 +24,7 @@ class InventoryDetailSeeder extends Seeder
                 'id_barang' => rand(1,50),
                 'kuantiti' => rand(1,50),
                 'keterangan' => '',
-                'status' => rand(0,3),
+                'status' => 'Diterima',
             ]);
         }
     }

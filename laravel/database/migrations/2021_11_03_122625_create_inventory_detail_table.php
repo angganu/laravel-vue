@@ -19,7 +19,7 @@ class CreateInventoryDetailTable extends Migration
             $table->unsignedInteger('id_barang')->index('FK_barang_id');
             $table->unsignedInteger('kuantiti');
             $table->string('keterangan')->nullable();
-            $table->smallInteger('status');
+            $table->string('status')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -28,6 +28,13 @@
                 <template #action="{item}">
                   <td>
                     <CButton
+                      color="info"
+                      size="sm"
+                      class="mr-2"
+                      @click="viewRow(item.id)"
+                      >Lihat</CButton
+                    >
+                    <CButton
                       color="success"
                       size="sm"
                       class="mr-2"
@@ -38,7 +45,7 @@
                       color="danger"
                       size="sm"
                       @click="deleteRow(item.id)"
-                      >Delete</CButton
+                      >Hapus</CButton
                     >
                   </td>
                 </template>
@@ -60,6 +67,13 @@
       <CForm>
         <div class="row">
           <div class="col-md-12">
+            <CAlert
+            color="danger"
+            closeButton
+            :show.sync="alertSubmit"
+          >
+            {{alertSubmitText}}
+          </CAlert>
             <div class="row">
               <div class="col-md-3">
                 <label>Tanggal Permintaan</label>
@@ -180,7 +194,7 @@
                     />
                   </td>
                   <td>
-                    <input class="form-control" v-on:keyup="cekQty(index, $event.target.value)" v-model="formModel.list_barang[index].kuantiti" />
+                    <input class="form-control" type="number" v-on:keyup="cekQty(index, $event.target.value)" v-model="formModel.list_barang[index].kuantiti" />
                   </td>
                   <td>
                     <input
@@ -192,7 +206,7 @@
                   <td>
                     <input class="form-control" v-model="formModel.list_barang[index].keterangan" />
                   </td>
-                  <td><CBadge color="success">{{statusText}}</CBadge></td>
+                  <td><CBadge color="success">{{formModel.list_barang[index].status}}</CBadge></td>
                   <td><CButton @click="removeRow(index)" size="sm" color="danger"><i class="fa fa-trash"></i></CButton></td>
                 </tr>
               </tbody>
@@ -255,9 +269,9 @@ export default {
       },
       rowIndex:0,
       alertEmpty:'',
+      alertSubmit: false,
+      alertSubmitText: '',
       selectedRow:'',
-      statusBadge: 'secondary',
-      statusText: '-',
     };
   },
   components: {
@@ -319,12 +333,14 @@ export default {
       this.formModel.list_barang[this.selectedRow].lokasi = val.lokasi;
       this.formModel.list_barang[this.selectedRow].stock = val.stock;
       this.formModel.list_barang[this.selectedRow].satuan = val.satuan;
+      this.formModel.list_barang[this.selectedRow].status = '-';
       this.alertEmpty = '';
     },
     reload() {
       this.getData();
     },
     modalCreateShow() {
+      this.selectBarang= [];
       this.formModel = {
         tanggal: new Date(),
         id_employee: "",
@@ -363,7 +379,11 @@ export default {
         'satuan' : '',
         'kuantiti' : '',
         'keterangan' : '',
+        'status' : '-',
       }) -1;
+    },
+    viewRow(id){
+      console.log(id);
     },
     removeRow(idx){
       this.formModel.list_barang.splice(idx, 1);
@@ -371,13 +391,13 @@ export default {
       this.alertEmpty = '';
     },
     cekQty(index,value) {
+      console.log(index);
+      console.log(this.formModel.list_barang);
       var stock = this.formModel.list_barang[index].stock;
       if(stock < value){
-        this.statusBadge = 'danger';
-        this.statusText = "Tidak Sesuai";
+        this.formModel.list_barang[index].status = "Tidak Sesuai";
       } else {
-        this.statusBadge = 'success';
-        this.statusText = "Diterima";
+        this.formModel.list_barang[index].status = "Diterima";
       }
     },
     store() {
@@ -407,18 +427,19 @@ export default {
           self.modalCreate = false;
         })
         .catch(function(error) {
-          if (error.response.data.message == "The given data was invalid.") {
-            self.message = "";
-            for (let key in error.response.data.errors) {
-              if (error.response.data.errors.hasOwnProperty(key)) {
-                self.message += error.response.data.errors[key][0] + "  ";
+          if(error.response.data.message == 'The given data was invalid.'){
+              self.alertSubmitText = '';
+              for (let key in error.response.data.errors) {
+                if (error.response.data.errors.hasOwnProperty(key)) {
+                  self.alertSubmitText += error.response.data.errors[key][0] + '  ';
+                }
               }
+              self.alertSubmit = true;
+            }else{
+              self.alertSubmit = true;
+              self.alertSubmitText = error.response.data.message;
+              // self.$router.push({ path: 'login' }); 
             }
-            self.showAlert();
-          } else {
-            console.log(error);
-            self.$router.push({ path: "login" });
-          }
         });
     },
     editRow(id) {
